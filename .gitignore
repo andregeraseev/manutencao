@@ -1,0 +1,33 @@
+# .gitignore
+
+# Diretório do cache do Python
+__pycache__/
+
+# Diretório de ambientes virtuais
+venv/
+myenv/
+
+# Banco de dados SQLite (se estiver usando)
+*.sqlite3
+
+# Arquivos byte-compiled do Python
+*.py[cod]
+
+# Arquivos de log
+*.log
+
+# Arquivos temporários
+*.tmp
+
+# Diretórios de mídia e estáticos
+media/
+static/
+
+# Arquivo de configuração do ambiente
+.env
+
+# Arquivos do PyCharm e IntelliJ
+.idea/
+
+# Arquivos do VS Code
+.vscode/
