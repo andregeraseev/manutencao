@@ -1,0 +1,27 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="fas fa-tasks"></i> Acompanhar Manutenção Preventiva
+        </h4>
+      </div>
+      <div class="card-body">
+        {% for manutencao in manutencoes %}
+        <div class="card mt-2">
+          <div class="card-body">
+            <h5 class="card-title">Manutenção: {{ manutencao.id }} <br> Empresa: {{ manutencao.empresa.nome }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Data: {{ manutencao.data_manutencao|date:"d M, Y" }}</h6>
+            <p class="card-text">{{ manutencao.descricao }}</p>
+            <a href="{% url 'atividade:detalhes_manutencao' manutencao.id %}" class="card-link">Detalhes</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

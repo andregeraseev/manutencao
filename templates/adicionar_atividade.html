@@ -1,0 +1,185 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Adicionar Atividade</h2>
+        </div>
+        <div class="card-body">
+          <form method="post" id="atividadeForm">
+            {% csrf_token %}
+            <input type="hidden" name="manutencao_id" value="{{ manutencao.id }}">
+
+            <div class="form-group">
+              <label for="id_area">Área:</label>
+              <select name="area" class="form-control" required id="id_area">
+                <option value="" selected disabled>Selecione uma área</option>
+                {% for area in areas %}
+                <option value="{{ area.id }}">{{ area.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="id_status">Status:</label>
+              <select name="status" class="form-control" required id="id_status">
+                <option value="concluido">Concluído</option>
+                <option value="em_manutencao">Em Manutenção</option>
+                <option value="pendente">Pendente</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="itemsContainer">
+              <label>Itens:</label>
+              <div class="input-group item-group">
+                <select name="itens[]" class="form-control item-input" required disabled>
+                  <option value="" selected disabled>Selecione uma área primeiro</option>
+                  {% for item in itens %}
+                  <option value="{{ item.id }}" data-area="{{ item.AreaChoise_id }}">{{ item.nome }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-danger delete-item" onclick="deleteItem(this)">Excluir</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-outline-primary mt-2" onclick="addNewItem()">Adicionar Item</button>
+            <button type="submit" class="btn btn-success mt-2">Salvar</button>
+          </form>
+        </div>
+        <div class="card-footer">
+          <a href="{% url 'home' %}" class="btn btn-secondary">Voltar para a Home</a>
+          <a href="{% url 'atividade:adicionar_manutencao' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de atividades e itens adicionados -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Atividades e Itens Adicionados</h2>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Área</th>
+                <th scope="col">Status</th>
+                <th scope="col">Itens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for atividade in atividades %}
+              <tr>
+                <th scope="row">{{ atividade.id }}</th>
+                <td>{{ atividade.area }}</td>
+                <td>{{ atividade.status }}</td>
+                <td>
+                  <ul>
+                    {% for item in atividade.item_set.all %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const areaSelect = document.querySelector('#id_area');
+  const itemSelect = document.querySelector('select[name="itens[]"]');
+  const itemGroup = document.querySelector('.item-group');
+
+  function updateItemOptions() {
+    const selectedArea = areaSelect.value;
+
+    for (let i = 0; i < itemSelect.options.length; i++) {
+      const option = itemSelect.options[i];
+      const area = option.dataset.area;
+
+      if (area === selectedArea || area === '') {
+        option.style.display = 'block';
+      } else {
+        option.style.display = 'none';
+      }
+    }
+
+    itemSelect.value = ''; // Reset selected option
+    itemSelect.disabled = false; // Enable item select
+
+    // Change the placeholder text after selecting an area
+    if (selectedArea !== '') {
+      itemSelect.querySelector('option[value=""]').innerText = 'Selecione um item';
+    } else {
+      itemSelect.querySelector('option[value=""]').innerText = 'Selecione uma área primeiro';
+    }
+  }
+
+  areaSelect.addEventListener('change', () => {
+    deleteAllItems();
+    updateItemOptions();
+  });
+
+  function addNewItem() {
+    const newItemGroup = itemGroup.cloneNode(true);
+    newItemGroup.querySelector('select').value = '';
+    newItemGroup.querySelector('.delete-item').style.display = 'block';
+    document.getElementById('itemsContainer').appendChild(newItemGroup);
+  }
+
+  function deleteItem(btn) {
+    const itemGroup = btn.parentNode;
+    itemGroup.remove();
+  }
+
+  function deleteAllItems() {
+    const itemGroups = document.querySelectorAll('.item-group');
+    for (let i = 1; i < itemGroups.length; i++) {
+      itemGroups[i].remove();
+    }
+  }
+</script>
+
+<script>
+  const form = document.querySelector('#atividadeForm');
+
+  form.addEventListener('submit', (event) => {
+    const itemSelects = document.querySelectorAll('select[name="itens[]"]');
+    let selectedItemCount = 0;
+
+    itemSelects.forEach((select) => {
+      if (select.value !== '') {
+        selectedItemCount++;
+      }
+    });
+
+    if (selectedItemCount === 0) {
+      event.preventDefault();
+      const alertDiv = document.createElement('div');
+      alertDiv.classList.add('alert', 'alert-danger');
+      alertDiv.textContent = 'Selecione pelo menos um item antes de salvar.';
+      form.prepend(alertDiv);
+
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 5000);
+    }
+  });
+</script>
+
+{% endblock %}

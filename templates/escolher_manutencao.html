@@ -1,0 +1,173 @@
+<!-- listar_manutencoes.html -->
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="fas fa-edit"></i> Escolher Manutenção para Editar
+        </h4>
+      </div>
+      <div class="card-body">
+        <table id="table-manutencoes" class="table table-striped">
+          <thead>
+            <tr>
+              <th>Manutenção</th>
+              <th>Empresa</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for manutencao in manutencoes %}
+            <tr>
+              <td>{{ manutencao.id }}</td>
+              <td>{{ manutencao.empresa.nome }}</td>
+              <td>{{ manutencao.data_manutencao|date:"d M, Y" }}</td>
+              <td>
+                <button type="button" class="btn btn-primary btn-alterar-data" data-manutencaoid="{{ manutencao.id }}">Alterar Data</button>
+                <a href="{% url 'atividade:editar_manutencao' manutencao.id %}" class="btn btn-primary">Editar atividades</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if manutencoes.has_other_pages %}
+        <div class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if manutencoes.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ manutencoes.previous_page_number }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for num in manutencoes.paginator.page_range %}
+            {% if num == manutencoes.number %}
+            <li class="page-item active">
+              <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > manutencoes.number|add:"-3" and num < manutencoes.number|add:"3" %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if manutencoes.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ manutencoes.next_page_number }}">Próxima</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'home' %}" class="btn btn-primary">Voltar para a Home</a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap5.min.css">
+
+<div class="modal fade" id="modalAlterarData" tabindex="-1" role="dialog" aria-labelledby="modalAlterarDataLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAlterarDataLabel">Alterar Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formAlterarData">
+          {% csrf_token %}
+          <input type="hidden" id="manutencaoId" name="manutencaoId" value="">
+          <div class="form-group">
+            <label for="novaData">Nova Data:</label>
+            <input type="date" class="form-control" id="novaData" name="novaData" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Alterar Data</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  $('#table-manutencoes').DataTable({
+    "language": {
+      "sEmptyTable": "Nenhum registro encontrado",
+      "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+      "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+      "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+      "sInfoPostFix": "",
+      "sInfoThousands": ".",
+      "sLengthMenu": "_MENU_ resultados por página",
+      "sLoadingRecords": "Carregando...",
+      "sProcessing": "Processando...",
+      "sZeroRecords": "Nenhum registro encontrado",
+      "sSearch": "Pesquisar",
+      "oPaginate": {
+        "sNext": "<i class='fas fa-angle-double-right'></i>",
+        "sPrevious": "<i class='fas fa-angle-double-left'></i>",
+        "sFirst": "Primeiro",
+        "sLast": "Último"
+      },
+      "oAria": {
+        "sSortAscending": ": Ordenar colunas de forma ascendente",
+        "sSortDescending": ": Ordenar colunas de forma descendente"
+      }
+    }
+  });
+
+  $('.btn-alterar-data').click(function() {
+    var manutencaoId = $(this).data('manutencaoid');
+    $('#manutencaoId').val(manutencaoId);
+    $('#modalAlterarData').modal('show');
+  });
+
+  $('#formAlterarData').submit(function(event) {
+    event.preventDefault();
+    var manutencaoId = $('#manutencaoId').val();
+    console.log(manutencaoId);
+    var novaData = $('#novaData').val();
+    console.log(novaData);
+
+    if (manutencaoId && novaData) {
+      // Realizar a alteração de data via AJAX
+      $.ajax({
+        url: '/atividade/alterar_data_manutencao/',
+        type: 'POST',
+        data: {
+          manutencaoId: manutencaoId,
+          novaData: novaData,
+          csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+          console.log('Alteração de data realizada com sucesso!');
+          // Aqui você pode atualizar a tabela de manutenções ou realizar qualquer outra ação necessária
+          // Exemplo: $('#table-manutencoes').DataTable().ajax.reload();
+          location.reload();
+        },
+        error: function(xhr, status, error) {
+          console.log('Erro ao realizar a alteração de data:', error);
+        }
+      });
+
+      $('#modalAlterarData').modal('hide');
+    }
+  });
+});
+</script>
+{% endblock %}

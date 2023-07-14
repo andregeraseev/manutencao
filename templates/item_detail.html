@@ -1,0 +1,131 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card mt-3 mb-3">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          Detalhes do Item - {{ item.descricao }}
+        </h4>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Status:
+          {% if item.status == "Pendente" %}
+              <span class="badge badge-danger">Pendente</span>
+                {% else %}
+              <span class="badge badge-success">Concluido</span>
+                {% endif %}</h4></h5>
+
+
+        <!-- Coloque aqui qualquer outro detalhe que você queira exibir sobre o item -->
+
+        <!-- Formulário de comentários -->
+        <form method="post" action="{% url 'atividade:salvar_comentario' item.id %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="comentario_{{ item.id }}">Comentário:</label>
+            <textarea class="form-control" id="comentario_{{ item.id }}" name="comentario">{{ item.comentario }}</textarea>
+          </div>
+          <button type="submit" class="btn btn-primary mb-3">Salvar Comentário</button>
+        </form>
+
+        <!-- Upload de fotos -->
+        <!-- Aqui você pode colocar o formulário para o upload das fotos, de maneira similar à vista de manutenção -->
+
+
+
+<!--        FOTOS-->
+
+
+        <div class="row">
+                    <div class="col-md-4">
+                      <form method="post" action="{% url 'atividade:salvar_foto' item.id 'foto1' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label for="foto1_{{ item.id }}">Foto 1:</label>
+                          {% if item.foto1 %}
+                            <img src="{{ item.foto1.url }}" alt="Foto 1" style="max-width: 100%;">
+                          {% endif %}
+                          <label class="btn btn-primary btn-upload">
+                            <i class="fas fa-camera"></i> Escolher Foto
+                            <input type="file" accept="image/*" capture="camera" class="form-control-file d-none" id="foto1_{{ item.id }}" name="foto1">
+                          </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Foto 1</button>
+                      </form>
+                    </div>
+                    <div class="col-md-4">
+                      <form method="post" action="{% url 'atividade:salvar_foto' item.id 'foto2' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label for="foto2_{{ item.id }}">Foto 2:</label>
+                          {% if item.foto2 %}
+                            <img src="{{ item.foto2.url }}" alt="Foto 2" style="max-width: 100%;">
+                          {% endif %}
+                          <label class="btn btn-primary btn-upload">
+                            <i class="fas fa-camera"></i> Escolher Foto
+                            <input type="file" accept="image/*" capture="camera" class="form-control-file d-none" id="foto2_{{ item.id }}" name="foto2">
+                          </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Foto 2</button>
+                      </form>
+                    </div>
+                    <div class="col-md-4">
+                      <form method="post" action="{% url 'atividade:salvar_foto' item.id 'foto3' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label for="foto3_{{ item.id }}">Foto 3:</label>
+                          {% if item.foto3 %}
+                            <img src="{{ item.foto3.url }}" alt="Foto 3" style="max-width: 100%;">
+                          {% endif %}
+                          <label class="btn btn-primary btn-upload">
+                            <i class="fas fa-camera"></i> Escolher Foto
+                            <input type="file" accept="image/*" capture="camera" class="form-control-file d-none" id="foto3_{{ item.id }}" name="foto3">
+                          </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Foto 3</button>
+                      </form>
+                    </div>
+                  </div>
+
+
+<!--        FIM FOTOS-->
+
+
+
+      </div>
+              {% csrf_token %}
+{% if item.status == "Pendente" %}
+  <button id="btn-alterar-status" class="btn btn-success m-3" data-activity-id="{{ item.id }}">Concluir Item</button>
+{% else %}
+  <button id="btn-alterar-status" class="btn btn-danger m-3" data-activity-id="{{ item.id }}">Marcar item como Pendente</button>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#btn-alterar-status').click(function() {
+      var activityId = $(this).data('activity-id');
+      console.log(activityId);
+
+      $.ajax({
+        url: '/atividade/alterar_status_item/' + activityId,
+        type: 'POST',
+        data: {
+          'atividade_id': activityId,
+          csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+          console.log(response.status);
+          location.reload(); // Recarregar a página inteira
+        }
+      });
+    });
+  });
+</script>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

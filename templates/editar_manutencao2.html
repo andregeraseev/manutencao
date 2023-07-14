@@ -1,0 +1,146 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <div class="section-header mt-5">
+    <h1 class="h3 h1-lg">Editar Manutenção</h1>
+    <h2 class="h5 h2-lg mt-2">Manutenção: {{ manutencao }}</h2>
+  </div>
+
+  <div class="container-sm">
+    <form method="post">
+      {% csrf_token %}
+      {% for area in area_choises %}
+      {% for atividade in atividades %}
+        {% if atividade.area == area.nome %}
+          <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+              <h4 class="mb-0">
+                <span class="circle-icon"><i class="fas fa-edit"></i></span> Editar Atividade: {{ area }}
+                <button class="btn btn-danger float-right" onclick="excluirAtividade({{ atividade.id }})">Excluir</button>
+              </h4>
+            </div>
+            <div class="card-body">
+              <h5>Itens:</h5>
+              {% for item in area.itemchoise_set.all %}
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="itens_{{ area.id }}" value="{{ item_choice.id }}"
+              {% for atividade_item in atividade.item_set.all %}
+                {% if item.nome == atividade_item.descricao %}
+                  checked
+                {% endif %}
+              {% endfor %}>
+                  <label class="form-check-label" for="itens_{{ area.id }}">{{ item }}</label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Salvar</button>
+  </form>
+
+
+ <!-- Formulário para adicionar itens -->
+  <div class="card mt-5">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Adicionar Itens</h4>
+    </div>
+    <div class="card-body">
+      <form id="adicionarItensForm" method="post" action="{% url 'atividade:adicionar_atividade' manutencao.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_area">Área:</label>
+          <select class="form-control" id="areaSelect" name="area">
+            <option value="">Selecione uma área...</option>
+            {% for area in area_choises %}
+              <option value="{{ area.id }}">{{ area.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="id_status">Status:</label>
+          <select class="form-control" id="statusSelect" name="status">
+            <option value="">Selecione um status...</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Concluído">Concluído</option>
+          </select>
+        </div>
+        <div class="form-group" id="itensDiv" style="display: none;">
+          <label for="id_itens">Itens:</label>
+          {% for area in area_choises %}
+            <div id="itens{{ area.id }}" style="display: none;">
+              {% for item in area.itemchoise_set.all %}
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="itens[]" value="{{ item.id }}" id="item{{ item.id }}">
+                  <label class="form-check-label" for="item{{ item.id }}">{{ item.nome }}</label>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Ativa a seleção de itens quando uma área é selecionada
+      $('#areaSelect').change(function() {
+        $('#itensDiv').hide();
+        $('div[id^="itens"]').hide();
+        if ($(this).val() !== "") {
+          $('#itensDiv').show();
+          $('#itens' + $(this).val()).show();
+        }
+      });
+    });
+  </script>
+
+  <!-- Resto do script... -->
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+// Configura o AJAX globalmente para sempre enviar o token CSRF
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        }
+    }
+});
+
+var baseURL = "{% url 'atividade:excluir_atividade' 0 %}";
+
+
+
+function excluirAtividade(areaId) {
+  console.log('excluirAtividade chamada com id:', areaId);
+
+  var url = baseURL.replace('0', areaId);
+
+  console.log('URL: ', url);
+  $.ajax({
+    url: url,
+    type: 'POST',
+    data: {
+      'csrfmiddlewaretoken': '{{ csrf_token }}',
+      'delete': 'true'
+    },
+    success: function() {
+      location.reload();
+    },
+    error: function(error) {
+      console.error('Erro:', error);
+    }
+  });
+}
+
+</script>
+
+
+{% endblock %}

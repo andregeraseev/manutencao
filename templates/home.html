@@ -1,0 +1,77 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <span class="circle-icon" onclick="location.href='{% url 'empresa:cadastro_empresa' %}'"><i class="fas fa-plus-circle"></i></span> Cadastrar Empresa
+        </h4>
+      </div>
+      <div class="card-body">
+        <p class="small-text">Cadastre uma nova empresa.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <span class="circle-icon" onclick="location.href='{% url 'empresa:listar_empresas' %}'"><i class="fas fa-plus-circle"></i></span> Editar Empresa
+        </h4>
+      </div>
+      <div class="card-body">
+        <p class="small-text">Edite os dados de uma empresa.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+<span class="circle-icon" onclick="location.href='{% url 'atividade:adicionar_manutencao' %}'"><i class="fas fa-plus-circle"></i></span> Adicionar Manutenção Preventiva        </h4>
+      </div>
+      <div class="card-body">
+        <p class="small-text">Adicione uma nova manutenção preventiva.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <span class="circle-icon" onclick="location.href='{% url 'atividade:escolher_manutencao' %}'"><i class="fas fa-plus-circle"></i></span> Editar Manutenção Preventiva
+        </h4>
+      </div>
+      <div class="card-body">
+        <p class="small-text">Edite informações da manutenção preventiva.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-1">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <span class="circle-icon" onclick="location.href='{% url 'atividade:acompanhar_manutencao' %}'"><i class="fas fa-plus-circle"></i></span> Acompanhar Manutenção Preventiva
+        </h4>
+      </div>
+      <div class="card-body">
+        <p class="small-text">Acompanhe as manutenções preventivas executadas ou em andamento.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
