@@ -21,7 +21,8 @@ from usuario.views import signup_view, home, login_view
 from atividade.views import excluir_atividade
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.urls import re_path
+from django.contrib.staticfiles.views import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', login_view, name='login'),
@@ -32,3 +33,4 @@ urlpatterns = [
     path('empresa/', include('empresa.urls', namespace='empresa')),
     path('excluir/<int:area_id>/', excluir_atividade, name='excluir_atividade'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
